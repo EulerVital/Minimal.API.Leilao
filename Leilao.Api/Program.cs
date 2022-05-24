@@ -1,6 +1,7 @@
 using Leilao.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Models.ViewModel;
+using Newtonsoft.Json;
 using RegraNegocio;
 using System.Net;
 using System.Text;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -22,6 +24,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
+app.UseCors(x =>
+    x.AllowAnyHeader()
+     .AllowAnyMethod()
+     .AllowAnyOrigin()
+);
 
 app.UseHttpsRedirection();
 app.UseWebSockets();
@@ -36,9 +45,11 @@ app.MapGet(pattern: "v1/leilao/participantes", async ([FromQuery] int idLeilao, 
 
      using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
+        RegraParticipante regra = new(dbContext);
+
      while (true)
      {
-         var data = Encoding.ASCII.GetBytes($"Teste {DateTime.Now}");
+         var data = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(regra.RetornaParticipanteLeilao(idLeilao)));
 
          await webSocket.SendAsync(data, System.Net.WebSockets.WebSocketMessageType.Text, true, CancellationToken.None);
          await Task.Delay(1000);
@@ -83,7 +94,7 @@ app.MapPost("v1/leilao", ([FromBody] LeiaoViewModel viewModel, ApplicationDbCont
 
 app.MapPost("v1/leilao/item", ([FromBody] ItemViewModel viewModel, ApplicationDbContext dbContext) =>
 {
-    viewModel = viewModel ?? new ItemViewModel(0);
+    viewModel ??= new ItemViewModel(0);
 
     var criaLeiao = new RegraLeilao(dbContext);
     criaLeiao.AddItens(viewModel.IdLeilao);
@@ -150,4 +161,4 @@ app.MapGet("v1/usuario/{id}", (int id, [FromQuery] bool? isTrazerItens, Applicat
     .Produces<Models.Usuario>(StatusCodes.Status200OK)
     .Produces<ErroViewModel>(StatusCodes.Status400BadRequest);
 
-app.Run();
+await app.RunAsync();

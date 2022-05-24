@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RegraNegocio", "RegraNegoci
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{7897FACC-55CD-4C35-ACF0-30C87D8111FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leilao.Repository", "Leilao.Repository\Leilao.Repository.csproj", "{89EFBEEB-DECA-4BE0-ADA8-86D21E754550}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leilao.Repository", "Leilao.Repository\Leilao.Repository.csproj", "{89EFBEEB-DECA-4BE0-ADA8-86D21E754550}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

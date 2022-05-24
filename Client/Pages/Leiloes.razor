@@ -1,0 +1,85 @@
+﻿@page "/leilao"
+@inject HttpClient Http
+@using System.Net.WebSockets;
+@using Newtonsoft.Json;
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Leilões disponíveis</h3>
+    </div>
+    <div class="card-body">
+
+        @if (this._Leiloes == null)
+        {
+            <div class="alert alert-dark">
+                <strong>Carregando...</strong>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var item in _Leiloes)
+                {
+                    <div class="col-md-3 col-sm-12">
+                        <div class="card">
+                            <div class="card">
+                                <img src="https://cdn-icons-png.flaticon.com/512/3366/3366050.png" class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Nome</h5>
+                                    <p class="card-text">Criado em: @item.DataCriacao.ToString("dd/MM/yyyy")</p>
+                                    <div class="row mt-2">
+                                        <div class="col-md-12">
+                                            <hr />
+                                            <ul>
+                                                <li>Último participante: @Participante.UltimoParticipante.Nome</li>
+                                                <li>Quntidade de participantes: @Participante.QtdUsuarios</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <a href="/leilao/itens/@item.Id" class="btn btn-primary mt-2">Acessar itens</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    public List<Leilao> _Leiloes { get; set; }
+    public Participante Participante { get; set; }
+
+    public Leiloes()
+    {
+    }
+
+    protected override async void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _Leiloes = await Http.GetFromJsonAsync<List<Leilao>>("/v1/leilao") ?? new List<Leilao>();
+
+        using var ws = new ClientWebSocket();
+        await ws.ConnectAsync(new Uri("wss://localhost:7150/v1/leilao/participantes?idleilao=1"), CancellationToken.None);
+
+        var buffer = new byte[10000];
+
+        while (ws.State == WebSocketState.Open)
+        {
+            var result = await ws.ReceiveAsync(buffer, CancellationToken.None);
+
+            if (result.MessageType == WebSocketMessageType.Close)
+                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
+            else
+            {
+                var stringObj = System.Text.ASCIIEncoding.ASCII.GetString(buffer, 0, result.Count);
+                Participante = JsonConvert.DeserializeObject<Participante>(stringObj) ?? new Participante();
+            }
+
+            StateHasChanged();
+        }        
+    }
+}
