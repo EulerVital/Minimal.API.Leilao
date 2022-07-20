@@ -18,7 +18,7 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 
-//Teste CherryPick git
+//Teste 1 Cherry pick
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
