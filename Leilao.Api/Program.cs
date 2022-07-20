@@ -27,6 +27,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//Teste 2 Cherry pick que vai pra tradução
 
 app.UseCors(x =>
     x.AllowAnyHeader()
