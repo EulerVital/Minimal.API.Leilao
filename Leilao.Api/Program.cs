@@ -23,6 +23,8 @@ var app = builder.Build();
 
 //Mais um teste cherrypick
 
+//Outro teste 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
