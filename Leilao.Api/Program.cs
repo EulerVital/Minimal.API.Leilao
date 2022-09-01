@@ -20,6 +20,9 @@ var app = builder.Build();
 
 //Teste CherryPick git
 
+
+//Mais um teste cherrypick
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
